@@ -1,14 +1,18 @@
+## 🧩 Visão geral
+
 # OnDutyDoctor
 
 Laravel Kafka Consumer Service — Consome a fila de demandas do Kafka (`demands.created`) e salva localmente usando SQLite.
+Após isso é possível assumir a demanda ou ignorar, assumindo irá dismparar uma nova mensagem para o Kafka (`demands.assumed`), ignorando só irá atualizar o status da demanda.
 
-## 🧩 Visão geral
+# OnDutyNow
 
-Este serviço faz parte do ecossistema distribuído do projeto **OnDutyNow**, composto por múltiplos containers. O `OnDutyDoctor` é responsável por:
+Laravel Kafka Producer Service — Produz a fila de demandas do Kafka (`demands.created`) e apresenta os demais serviços.
 
-- Consumir mensagens do Kafka (`demands.created`)
-- Persistir os dados localmente em SQLite
-- Rodar como worker autônomo (sem necessidade de banco ou serviços externos)
+# OnDutyMonitor
+
+Node Kafka Consumer Service — Consome todos tópicos existentes e mostra em formato de gráfico.
+
 
 ---
 
@@ -28,23 +32,18 @@ Baseado em `php:8.2-cli`, com:
 1. Build do container:
 
 ```bash
-docker-compose build ondutydoctor
+docker-compose build
 ```
 
 2. Subir:
 
 ```bash
-docker-compose up -d ondutydoctor
+docker-compose up -d
 ```
-
-O container executa automaticamente:
-
-- `php artisan serve --host=0.0.0.0 --port=8001` (background)
-- `php artisan kafka:consume-demands` (consumer principal)
 
 ---
 
-## 📂 Estrutura relevante
+## 📂 Estrutura OnDutyDoctor
 
 Diferente do OnDutyNow que usa Http para comunicação com Kafka, aqui optamos pelo uso da lib RdKafka para estudos.
 
@@ -69,22 +68,8 @@ OnDutyDoctor/
 
 ## 🛠️ Configuração `.env`
 
-```env
-DB_CONNECTION=sqlite
-DB_DATABASE=/var/www/html/database/database.sqlite
-APP_ENV=local
-APP_DEBUG=true
-KAFKA_BROKER=kafka:9092
-```
+Configuração do .env para ambos ambientes em Laravel é igual ao `.env.exemple`
 
----
-
-## 💡 Observações
-
-- O `php-rdkafka` é uma extensão PECL, e por isso o VS Code pode acusar `Undefined type 'RdKafka\Conf'`. Isso é normal.
-- As mensagens são persistidas no SQLite em JSON (`payload`) junto com `type` e `external_id`.
-
----
 
 ## 📈 Exemplo de payload salvo
 
@@ -101,24 +86,6 @@ KAFKA_BROKER=kafka:9092
   }
 }
 ```
-
----
-
-## 🔍 Debug
-
-Verifique os logs do container:
-
-```bash
-docker logs -f ondutydoctor
-```
-
-Para inspecionar os dados salvos:
-
-```bash
-docker exec -it ondutydoctor sqlite3 database/database.sqlite
-```
-
----
 
 ## 📋 Futuras melhorias
 
