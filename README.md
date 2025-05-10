@@ -1,18 +1,37 @@
 ## 🧩 Visão geral
 
-# OnDutyDoctor
+- Laravel Kafka Consumer Service — Consome a fila de demandas do Kafka (`demands.created`) e salva localmente usando SQLite, após isso é possível assumir a demanda ou ignorar, assumindo irá dismparar uma nova mensagem para o Kafka (`demands.assumed`), ignorando só irá atualizar o status da demanda.
 
-Laravel Kafka Consumer Service — Consome a fila de demandas do Kafka (`demands.created`) e salva localmente usando SQLite.
-Após isso é possível assumir a demanda ou ignorar, assumindo irá dismparar uma nova mensagem para o Kafka (`demands.assumed`), ignorando só irá atualizar o status da demanda.
+- Laravel Kafka Producer Service — Produz a fila de demandas do Kafka (`demands.created`) e apresenta os demais serviços.
+
+- Node Kafka Consumer Service — Consome todos tópicos existentes e mostra em formato de gráfico.
+
+## 🏗️ Arquitetura
+A arquitetura do sistema é composta por múltiplos containers Docker orquestrados via docker-compose, com os seguintes componentes:
+
+# Zookeeper
+Responsável pela coordenação do cluster Kafka.
+
+# Kafka
+Broker principal, exposto internamente via PLAINTEXT://kafka:9092, com auto criação de tópicos habilitada.
+
+# REST Proxy
+Permite que aplicações como o OnDutyNow produzam mensagens via HTTP usando o Kafka REST Proxy da Confluent.
+
+# Kowl
+Interface web acessível em :8080 para inspeção e gerenciamento dos tópicos Kafka em tempo real.
 
 # OnDutyNow
+Serviço Laravel responsável por produzir mensagens no tópico demands.created via REST Proxy.
 
-Laravel Kafka Producer Service — Produz a fila de demandas do Kafka (`demands.created`) e apresenta os demais serviços.
+# OnDutyDoctor
+Serviço Laravel que consome mensagens diretamente do broker Kafka usando a extensão nativa php-rdkafka e persiste localmente em SQLite.
 
 # OnDutyMonitor
+Aplicação Node.js que consome múltiplos tópicos Kafka diretamente do broker e exibe os dados em tempo real via dashboard (porta 3000).
 
-Node Kafka Consumer Service — Consome todos tópicos existentes e mostra em formato de gráfico.
-
+# init-topics
+Container auxiliar que executa um script de criação dos tópicos com base no arquivo kafka-topics.txt.
 
 ---
 
