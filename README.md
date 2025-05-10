@@ -46,6 +46,8 @@ O container executa automaticamente:
 
 ## 📂 Estrutura relevante
 
+Diferente do OnDutyNow que usa Http para comunicação com Kafka, aqui optamos pelo uso da lib RdKafka para estudos.
+
 ```bash
 OnDutyDoctor/
 ├── app/
